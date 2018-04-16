@@ -63,7 +63,25 @@ config NRF52_UART0
 	select UART0_SERIALDRIVER
 	select NRF52_HAVE_UART
 
+config NRF52_WDG
+	bool "Watchdog (WDT)"
+	default n
+	select WATCHDOG
+
 endmenu # NRF52 Peripheral Selection
+
+config NRF52_FLASH_PREFETCH
+	bool "Enable FLASH Pre-fetch"
+	default y
+	---help---
+	Enable FLASH prefetch
+
+config NRF52_PROGMEM
+	bool "FLASH program memory"
+	default n
+	select ARCH_HAVE_PROGMEM
+	---help---
+		Enable support FLASH interfaces as defined in include/nuttx/progmem.h
 
 menu "GPIO Interrupt Configuration"
 

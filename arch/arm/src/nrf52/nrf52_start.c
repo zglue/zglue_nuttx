@@ -54,6 +54,7 @@
 #include "nrf52_start.h"
 #include "nrf52_gpio.h"
 #include "nrf52_serial.h"
+#include "nrf_nvmc.h"
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -218,8 +219,15 @@ void __start(void)
   showprogress('C');
 
   /* Initialize the FPU (if configured) */
+  SystemInit();  //For nrf52 system init
 
   nrf52_fpuconfig();
+
+#ifdef CONFIG_NRF52_FLASH_PREFETCH
+  nrf_nvmc_enable_icache(true);
+  nrf_nvmc_enable_profile(true);
+#endif
+
   showprogress('D');
 
   /* Perform early serial initialization */
