@@ -45,6 +45,13 @@ config NRF52_HAVE_UART
 	bool
 	default n
 
+config NRF52_SPI
+	bool
+	default n
+
+config NRF52_LEGACY_SPI
+	bool
+	default n
 menu "NRF52 Peripheral Selection"
 
 config NRF52_I2C0_MASTER
@@ -56,6 +63,46 @@ config NRF52_I2C1_MASTER
 	bool "I2C1 Master"
 	default n
 	select NRF52_HAVE_I2C_MASTER
+
+
+config NRF52_SPI0
+	bool "SPI0"
+	default n
+	select SPI
+	select NRF52_SPI
+
+config NRF52_LEGACY_SPI0
+	bool "SPI0 Legacy"
+	default n
+	depends on !NRF52_SPI0
+	select SPI
+	select NRF52_LEGACY_SPI
+
+config NRF52_SPI1
+	bool "SPI1"
+	default n
+	select SPI
+	select NRF52_SPI
+
+config NRF52_LEGACY_SPI1
+    bool "SPI1 Legacy"
+    default n
+	depends on !NRF52_SPI1
+    select SPI
+    select NRF52_LEGACY_SPI
+
+config NRF52_SPI2
+	bool "SPI2"
+	default n
+	select SPI
+	select NRF52_SPI
+
+config NRF52_LEGACY_SPI2
+    bool "SPI2 Legacy"
+    default n
+	depends on !NRF52_SPI2
+    select SPI
+    select NRF52_LEGACY_SPI
 
 config NRF52_UART0
 	bool "UART0"
@@ -90,3 +137,25 @@ config NRF52_GPIOIRQ
 	default n
 
 endmenu # GPIO Interrupt Configuration
+
+menu "SPI Configuration"
+	depends on NRF52_SPI || NRF52_LEGACY_SPI
+
+config NRF52_SPI_INTERRUPTS
+	bool "Interrupt driver SPI"
+	default n
+	---help---
+		Select to enable interrupt driven SPI support. Non-interrupt-
+                driven, poll-waiting is recommended if the interrupt rate would
+                be to high in the interrupt driven case.
+
+config NRF52_CS_CONTROL_BY_USER
+	bool "SPI CS select customization"
+	default n
+	---help---
+		User define customized cs
+
+
+endmenu
+
+

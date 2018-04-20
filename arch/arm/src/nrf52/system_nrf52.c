@@ -189,7 +189,7 @@ void SystemInit(void)
   /* Enable the FPU if the compiler used floating point unit instructions. __FPU_USED is a MACRO defined by the
    * compiler. Since the FPU consumes energy, remember to disable FPU use in the compiler if floating point unit
    * operations are not used in your code. */
-#if (CONFIG_ARCH_FPU == 1)
+#if defined(CONFIG_ARCH_FPU) && (CONFIG_ARCH_FPU == 1)
   SCB->CPACR |= (3UL << 20) | (3UL << 22);
   ARM_DSB();
   ARM_ISB();
