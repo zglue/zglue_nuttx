@@ -49,6 +49,7 @@
 #include <nuttx/wireless/wireless.h>
 #include <nuttx/wireless/bt_core.h>
 #include <nuttx/wireless/bt_hci.h>
+#include <nuttx/wireless/bt_gatt.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -59,7 +60,7 @@
 
 /* Bluetooth network device IOCTL commands. */
 
-#if !defined(WL_BLUETOOTHCMDS) || WL_BLUETOOTHCMDS != 16
+#if !defined(WL_BLUETOOTHCMDS) || WL_BLUETOOTHCMDS != 20
 #  error Incorrect setting for number of Bluetooth IOCTL commands
 #endif
 
@@ -162,6 +163,24 @@
 
 #define SIOCBTSECURITY         _WLIOC(WL_BLUETOOTHFIRST + 15)
 
+/* GATT
+ *
+ * SIOCBTEXCHANGE
+ *   Exchange MTUs
+ * SIOCBTEXRESULT
+ *   Get the result of the MTU exchange
+ * SIOCBTDISCOVER
+ *   Starts GATT discovery
+ * SIOCBTDISCGET
+ *   Return discovery results buffered since the call time that the
+ *   SIOCBTDISCGET command was invoked.
+ */
+
+#define SIOCBTEXCHANGE         _WLIOC(WL_BLUETOOTHFIRST + 16)
+#define SIOCBTEXRESULT         _WLIOC(WL_BLUETOOTHFIRST + 17)
+#define SIOCBTDISCOVER         _WLIOC(WL_BLUETOOTHFIRST + 18)
+#define SIOCBTDISCGET          _WLIOC(WL_BLUETOOTHFIRST + 19)
+
 /* Definitions associated with struct btreg_s *******************************/
 /* struct btreq_s union field accessors */
 
@@ -193,6 +212,20 @@
 #define btr_secaddr            btru.btrse.btrse_secaddr
 #define btr_seclevel           btru.btrse.btrse_seclevel
 
+#define btr_expeer             btru.btmx.btmx_expeer
+
+#define btr_expending          btru.btmxr.mx_pending
+#define btr_exresult           btru.btmxr.mx_result
+
+#define btr_dtype              btru.btrds.btrds_dtype
+#define btr_dpeer              btru.btrds.btrds_dpeer
+#define btr_duuid16            btru.btrds.btrds_duuid16
+#define btr_dstart             btru.btrds.btrds_dstart
+#define btr_dend               btru.btrds.btrds_dend
+
+#define btr_gnrsp              btru.btrdg.btrdg_gnrsp
+#define btr_grsp               btru.btrdg.btrdg_grsp
+
 #define btr_stats              btru.btrs
 
 /* btr_flags */
@@ -213,16 +246,40 @@
  * Public Types
  ****************************************************************************/
 
+/* Type of GATT discovery command */
+
+enum bt_gatt_discover_e
+{
+  GATT_DISCOVER = 0,                /* Discover */
+  GATT_DISCOVER_DESC,               /* Discover descriptor */
+  GATT_DISCOVER_CHAR,               /* Discover characteristic */
+};
+
 /* Write-able data that accompanies the SIOCBTSCANGET IOCTL command */
 
 struct bt_scanresponse_s
 {
-  char sr_name[HCI_DEVNAME_SIZE];   /* Device name */
   bt_addr_le_t sr_addr;             /* Advertiser LE address and type */
   int8_t sr_rssi;                   /* Strength of advertiser signal */
   uint8_t sr_type;                  /* Type of advertising response */
   uint8_t sr_len;                   /* Length of advertiser data */
   uint8_t sr_data[CONFIG_BLUETOOTH_MAXSCANDATA];
+};
+
+/* Write-able data that accompanies the SIOCBTDISCGET IOCTL command */
+
+struct bt_discresonse_s
+{
+  uint16_t dr_handle;               /* Discovered handled */
+  uint8_t dr_perm;                  /* Permissions */
+};
+
+/* MTU exchange state variables. */
+
+struct bt_exchangeresult_s
+{
+  bool mx_pending;                  /* True:  We have not yet received the result */
+  uint8_t mx_result;                /* The result of the MTU exchange */
 };
 
 /* Bluetooth statistics */
@@ -323,6 +380,43 @@ struct btreq_s
         bt_addr_le_t btrse_secaddr;        /* BLE address */
         enum bt_security_e btrse_seclevel; /* Security level */
       } btrse;
+
+      /* Read-only data that accompanies SIOCBTEXCHANGE command */
+
+      struct
+      {
+        bt_addr_le_t btmx_expeer;       /* Peer address for MTU exchange */
+      } btmx;
+
+      /* Write result that accompanies SIOCBTEXRESULT command */
+
+      struct bt_exchangeresult_s btmxr;
+
+      /* Read-only data that accompanies SIOCBTDISCOVER command */
+
+      struct
+      {
+        uint8_t btrds_dtype;            /* Discovery type (see enum
+                                         * bt_gatt_discover_e) */
+        bt_addr_le_t btrds_dpeer;       /* Peer address */
+        uint16_t btrds_duuid16;         /* Discover UUID type */
+        uint16_t btrds_dstart;          /* Discover start handle */
+        uint16_t btrds_dend;            /* Discover end handle */
+      } btrds;
+
+      /* Write-able structure that accompanies SIOCBTDISCGET command. */
+
+      struct
+      {
+        uint8_t btrdg_gnrsp;            /* Input:  Max number of responses
+                                         * Return: Actual number of responses */
+
+        /* Reference to a beginning of an array in user memory in which to
+         * return the discovered data.  The size of the array is btrdg_gnrsp.
+         */
+
+        FAR struct bt_discresonse_s *btrdg_grsp;
+      } btrdg;
 
       struct bt_stats_s btrs;           /* Unit statistics */
    } btru;
