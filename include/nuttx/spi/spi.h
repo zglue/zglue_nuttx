@@ -457,6 +457,8 @@
 #define SPIDEV_IEEE802154(n)    SPIDEV_ID(SPIDEVTYPE_IEEE802154,    (n))
 #define SPIDEV_CONTACTLESS(n)   SPIDEV_ID(SPIDEVTYPE_CONTACTLESS,   (n))
 #define SPIDEV_CANBUS(n)        SPIDEV_ID(SPIDEVTYPE_CANBUS,        (n))
+#define SPIDEV_MAGNETOMETER(n)  SPIDEV_ID(SPIDEVTYPE_MAGNETOMETER,  (n))
+#define SPIDEV_ACC_GYRO_COMB(n) SPIDEV_ID(SPIDEVTYPE_ACC_GYRO_COMB, (n))
 #define SPIDEV_USER(n)          SPIDEV_ID(SPIDEVTYPE_USER,          (n))
 
 /****************************************************************************
@@ -493,6 +495,8 @@ enum spi_devtype_e
   SPIDEVTYPE_IEEE802154,    /* Select SPI IEEE 802.15.4 wireless device */
   SPIDEVTYPE_CONTACTLESS,   /* Select SPI Contactless device */
   SPIDEVTYPE_CANBUS,        /* Select SPI CAN Bus controller over SPI */
+  SPIDEVTYPE_MAGNETOMETER,  /* Select SPI magnetometer device*/
+  SPIDEVTYPE_ACC_GYRO_COMB, /* Select Accelerometer and gyro combine device*/
   SPIDEVTYPE_USER           /* Board-specific values start here
                              * This must always be the last definition. */
 };

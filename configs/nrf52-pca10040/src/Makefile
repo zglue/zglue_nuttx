@@ -52,4 +52,8 @@ ifeq ($(CONFIG_ARCH_BUTTONS),y)
 CSRCS += nrf52_buttons.c
 endif
 
+ifeq ($(CONFIG_NRF52_CS_CONTROL_BY_USER),y)
+CSRCS += nrf52_user_spi.c
+endif
+
 include $(TOPDIR)/configs/Board.mk
